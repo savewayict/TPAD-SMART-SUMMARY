@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#123b63"><title>TPAD Smart V2</title>
+<meta name="theme-color" content="#123b63"><title>TPAD SMART SUMMARY</title>
 <style>
 :root{--nav:#123b63;--nav2:#0d2c4a;--bg:#f4f7fb;--line:#d9e2ec;--text:#172033;--muted:#66758a;--ok:#147a52}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
@@ -26,6 +26,23 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 .progressbar{height:9px;background:#e7edf3;border-radius:8px;overflow:hidden}.progressbar span{display:block;height:100%;width:0;background:#123b63}
 .modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:30;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:14px;padding:18px;max-width:600px;width:100%;max-height:90vh;overflow:auto}
 @media print{.v8-only{display:none!important}}
+
+.teacher-hero{background:linear-gradient(135deg,#123b63,#1d5f93);color:#fff;border-radius:14px;padding:18px;margin-bottom:14px}
+.teacher-hero h2{color:#fff;font-size:22px;margin:0 0 5px}.teacher-hero p{margin:3px 0;font-size:12px;opacity:.92}
+.teacher-progress{height:10px;background:#ffffff33;border-radius:10px;overflow:hidden;margin:12px 0 6px}.teacher-progress span{display:block;height:100%;width:0;background:#fff;border-radius:10px}
+.teacher-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.teacher-action{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;text-align:left;box-shadow:0 2px 8px #123b630c;cursor:pointer}.teacher-action b{display:block;color:var(--nav);font-size:14px}.teacher-action small{color:var(--muted);font-size:11px;display:block;margin-top:4px}.teacher-icon{font-size:24px;margin-bottom:7px}.teacher-score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.teacher-score>div{background:#ffffff18;border:1px solid #ffffff2b;border-radius:9px;padding:9px}.teacher-score b{display:block;font-size:18px}.role-switch{margin-top:10px}
+@media(max-width:720px){.teacher-actions{grid-template-columns:1fr}.teacher-score{grid-template-columns:repeat(3,1fr)}.teacher-action{min-height:86px}.teacher-hero{padding:15px}}
+
+.authGate{position:fixed;inset:0;background:linear-gradient(135deg,#0d2c4a,#123b63);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.authBox{width:min(520px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 18px 50px #0005}
+.authBrand{font-size:22px;font-weight:900;color:#123b63;margin-bottom:4px}.authSub{font-size:12px;color:#66758a;margin-bottom:16px}
+.authTabs{display:flex;gap:6px;margin-bottom:14px}.authTabs button{flex:1}.authTabs .active{background:#123b63;color:#fff}
+.authNote{font-size:11px;color:#66758a;background:#f4f7fb;border:1px solid #d9e2ec;border-radius:8px;padding:10px;margin-top:10px}
+.authError{display:none;background:#fdeaea;color:#9c2424;border:1px solid #efbcbc;padding:9px;border-radius:8px;font-size:12px;margin-bottom:10px}
+.authSuccess{display:none;background:#eaf4ef;color:#147a52;border:1px solid #b8dccb;padding:9px;border-radius:8px;font-size:12px;margin-bottom:10px}
+.userChip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:18px;background:#e8eff6;color:#123b63;font-size:11px;font-weight:700}
+.logoutBtn{background:#fdeaea;color:#9c2424}
+
 </style><meta name="theme-color" content="#123b63">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -34,7 +51,45 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 <link rel="icon" href="icon-192.png" type="image/png">
 </head>
 <body>
-<header><h1>SAVEWAY ICT — TPAD SMART</h1><p>Version 2 • TPAD preparation, scoring and reporting prototype</p></header>
+
+<div id="authGate" class="authGate">
+  <div class="authBox">
+    <div class="authBrand">TPAD SMART SUMMARY</div>
+    <div class="authSub">Hosted by SAVEWAY ICT • Ngendalel Schools</div>
+    <div class="authTabs">
+      <button id="loginTabBtn" class="active secondary" onclick="showAuthTab('login')">Sign In</button>
+      <button id="registerTabBtn" class="secondary" onclick="showAuthTab('register')">Create Teacher Account</button>
+    </div>
+
+    <div id="authError" class="authError"></div>
+    <div id="authSuccess" class="authSuccess"></div>
+
+    <form id="loginForm" onsubmit="event.preventDefault();loginAccount()">
+      <div class="grid">
+        <label>Email / TSC / Staff No.<input id="authLoginId" autocomplete="username" required></label>
+        <label>Password<input id="authLoginPassword" type="password" autocomplete="current-password" required></label>
+      </div>
+      <button class="primary" style="width:100%;margin-top:12px">Sign In</button>
+      <div class="authNote">Teacher accounts created in this prototype are stored only in this browser. A production version will use a secure server/database.</div>
+    </form>
+
+    <form id="registerForm" style="display:none" onsubmit="event.preventDefault();registerTeacherAccount()">
+      <div class="grid">
+        <label>Full Name<input id="regName" autocomplete="name" required></label>
+        <label>TSC / Staff No.<input id="regTsc" required></label>
+        <label>Email<input id="regEmail" type="email" autocomplete="email" required></label>
+        <label>Phone<input id="regPhone" type="tel" autocomplete="tel"></label>
+        <label>School / Institution<input id="regSchool" value="Ngendalel Schools" required></label>
+        <label>Password<input id="regPassword" type="password" minlength="6" autocomplete="new-password" required></label>
+        <label>Confirm Password<input id="regPassword2" type="password" minlength="6" autocomplete="new-password" required></label>
+      </div>
+      <button class="primary" style="width:100%;margin-top:12px">Create Teacher Account</button>
+      <div class="authNote">For this pilot, anyone with access to this browser can create a local teacher account. We will add school-admin approval and secure cloud authentication before real deployment.</div>
+    </form>
+  </div>
+</div>
+
+<header><h1>TPAD SMART SUMMARY</h1><p>Hosted by SAVEWAY ICT • Ngendalel Schools</p><div style="margin-top:8px;display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="headerUserChip" class="userChip">Not signed in</span><button id="headerLogout" class="logoutBtn" style="display:none;padding:6px 10px" onclick="logoutAccount()">Sign out</button></div></header>
 <main>
 <input type="hidden" id="recordId">
 
@@ -42,24 +97,35 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 
 
 <section id="home" class="panel active card">
-<div class="v8top"><span class="v8pill">SAVEWAY ICT — TPAD SMART</span><span id="homeRole" class="v8pill">Guest</span><span id="homeSchool" class="v8pill">No school selected</span></div>
-<div class="v8top"><span class="v8pill">HOSTED BY SAVEWAY ICT</span><button id="installBtn" class="primary" style="display:none" onclick="installApp()">📲 Install App</button></div>
-<h2>Welcome to your TPAD Workspace</h2>
-<p class="small">A mobile-first school appraisal management prototype. Use the quick actions below to move through the TPAD workflow.</p>
-<div class="kpi">
-<div>Teachers<b id="homeTeachers">0</b></div><div>Pending<b id="homePending">0</b></div><div>Completed<b id="homeCompleted">0</b></div><div>Avg LO<b id="homeAvg">0</b></div>
+<div class="v8top"><span class="v8pill">TPAD SMART SUMMARY</span><span id="homeRole" class="v8pill">Guest</span><span id="homeSchool" class="v8pill">Ngendalel Schools</span></div>
+<div class="teacher-hero">
+  <h2>Welcome, <span id="teacherWelcome">Teacher</span> 👋</h2>
+  <p><span id="teacherSchoolWelcome">Ngendalel Schools</span> • <span id="teacherPeriodWelcome">2026 • Term 1</span></p>
+  <div class="teacher-progress"><span id="teacherProgressBar"></span></div>
+  <p><b id="teacherProgressText">0% complete</b> • Complete your TPAD sections and generate your summary.</p>
+  <div class="teacher-score"><div>LO /100<b id="teacherLO">0</b></div><div>Target 3 /3<b id="teacherT3">0.00</b></div><div>Likert /5<b id="teacherLikert">0.00</b></div></div>
 </div>
-<div class="grid3" style="margin-top:12px">
-<button class="primary" onclick="openV8('school')">🏫 School Profile</button>
-<button class="primary" onclick="openV8('users')">👥 User & Role Management</button>
-<button class="primary" onclick="openV8('assign')">📋 Assign Appraisers</button>
-<button class="secondary" onclick="openV8('dashboard')">📊 School Dashboard</button>
-<button class="secondary" onclick="openV8('analytics')">📈 Analytics</button>
-<button class="secondary" onclick="openV8('profile')">➕ Teacher Appraisal</button>
+<div id="teacherQuick">
+  <div class="teacher-actions">
+    <button class="teacher-action" onclick="openTeacher('profile')"><span class="teacher-icon">👤</span><b>My Profile</b><small>Personal, school, grade and learning area</small></button>
+    <button class="teacher-action" onclick="openTeacher('standards')"><span class="teacher-icon">🎯</span><b>My TPAD Targets</b><small>Teaching standards and agreed ratings</small></button>
+    <button class="teacher-action" onclick="openTeacher('observation')"><span class="teacher-icon">📋</span><b>Lesson Observation</b><small>Observation marks and Target 3 conversion</small></button>
+    <button class="teacher-action" onclick="openTeacher('progress')"><span class="teacher-icon">📚</span><b>Learner Progress & Attendance</b><small>Progress and lessons taught</small></button>
+    <button class="teacher-action" onclick="openTeacher('gaps')"><span class="teacher-icon">🎓</span><b>Professional Development</b><small>Gaps, interventions and development priorities</small></button>
+    <button class="teacher-action" onclick="openTeacher('summary')"><span class="teacher-icon">📊</span><b>TPAD Summary</b><small>Review your calculated scores and report</small></button>
+  </div>
+  <div class="v8notice" style="margin-top:14px"><b>Platform Host:</b> Saveway ICT &nbsp; | &nbsp; <b>School:</b> Ngendalel Schools<br><br><span class="small">Your teacher account is active on this device. Records are currently stored locally in this browser. Secure cloud accounts, backups and school-level data separation will be added in the production backend.</span></div>
 </div>
-<div class="v8notice" style="margin-top:14px"><b>Platform Host:</b> Saveway ICT &nbsp; | &nbsp; <b>School Tenant:</b> Ngendalel Schools<br><br>Prototype mode: records are stored locally in this browser. Cloud authentication, encryption, backups and official-system integration require a secure backend and appropriate authorization.</div>
+<div id="adminQuick" style="display:none;margin-top:14px">
+  <h3>Administrator</h3>
+  <div class="teacher-actions">
+    <button class="teacher-action" onclick="openV8('dashboard')"><span class="teacher-icon">🏫</span><b>School Dashboard</b><small>Manage teacher records</small></button>
+    <button class="teacher-action" onclick="openV8('school')"><span class="teacher-icon">🏫</span><b>School Profile</b><small>Institution configuration</small></button>
+    <button class="teacher-action" onclick="openV8('users')"><span class="teacher-icon">👥</span><b>Users & Roles</b><small>Manage school users</small></button>
+    <button class="teacher-action" onclick="openV8('assign')"><span class="teacher-icon">📋</span><b>Assign Appraisers</b><small>Teacher-to-appraiser assignment</small></button>
+  </div>
+</div>
 </section>
-
 <section id="school" class="panel card">
 <h2>School Profile & Registration</h2>
 <div class="grid3">
@@ -104,7 +170,7 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 <button class="secondary" onclick="printAnalytics()">Print Analytics Report</button>
 </section>
 <section id="product" class="panel card">
-<h2>TPAD Smart — Product Demonstration</h2>
+<h2>TPAD SMART SUMMARY — Platform Overview</h2>
 <p>This section is a demonstration/proposal outline for presenting the independent software concept to a school, education partner or TSC stakeholder.</p>
 <div class="grid3">
 <div><b>Core Value</b><p class="small">Simplifies TPAD preparation, evidence organization, lesson observation scoring and reporting.</p></div>
@@ -124,8 +190,8 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 </section>
 
 <section id="access" class="panel card active">
-<h2>V6 Access & User Role</h2>
-<p class="small">Local demonstration of role-based access. This prototype does not replace official TSC authentication.</p>
+<h2>Account & User Role</h2>
+<p class="small">Teacher accounts are now created and signed in from the secure-looking app gate. This pilot stores credentials locally in the browser and does not replace official TSC authentication.</p>
 <div class="grid3">
 <label>User Name<input id="loginName" placeholder="Enter your name"></label>
 <label>Role<select id="loginRole"><option>Teacher</option><option>Appraiser / Deputy Head</option><option>Head of Institution</option><option>School Administrator</option></select></label>
@@ -162,9 +228,9 @@ button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4
 </table></div>
 </section>
 
-<div class="nav no-print">
+<div class="nav no-print"><span class="v8pill" style="align-self:center">Teacher Menu</span>
 <button class="active" onclick="tab('home',this)">Home</button>
-<button onclick="tab('access',this)">Access</button>
+<button onclick="tab('access',this)">Login / Role</button>
 <button onclick="tab('dashboard',this)">Dashboard</button><button onclick="tab('school',this)">School</button><button onclick="tab('users',this)">Users</button><button onclick="tab('assign',this)">Assignments</button><button onclick="tab('analytics',this)">Analytics</button><button onclick="tab('product',this)">Product Brief</button>
 <button onclick="tab('workflow',this)">Workflow</button><button onclick="tab('profile',this)">1. Profile</button>
 <button onclick="tab('standards',this)">2. TPAD Standards</button>
@@ -494,19 +560,146 @@ function handleImport(e){
  rd.readAsText(f);e.target.value="";
 }
 
+
+/* V11 ACCOUNT & AUTHENTICATION — local pilot */
+const ACCOUNT_KEY="tpadSmartV11Accounts";
+const SESSION_KEY="tpadSmartV11Session";
+
+function accountGet(){
+  try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"[]")}catch(e){return []}
+}
+function accountSet(a){localStorage.setItem(ACCOUNT_KEY,JSON.stringify(a))}
+async function hashPassword(pw){
+  const data=new TextEncoder().encode(pw);
+  const hash=await crypto.subtle.digest("SHA-256",data);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function showAuthMsg(id,msg){
+  document.getElementById("authError").style.display="none";
+  document.getElementById("authSuccess").style.display="none";
+  const el=document.getElementById(id);el.textContent=msg;el.style.display="block";
+}
+function showAuthTab(which){
+  const login=which==="login";
+  document.getElementById("loginForm").style.display=login?"block":"none";
+  document.getElementById("registerForm").style.display=login?"none":"block";
+  document.getElementById("loginTabBtn").classList.toggle("active",login);
+  document.getElementById("registerTabBtn").classList.toggle("active",!login);
+  document.getElementById("authError").style.display="none";
+  document.getElementById("authSuccess").style.display="none";
+}
+async function registerTeacherAccount(){
+  const name=regName.value.trim(), tscNo=regTsc.value.trim(), email=regEmail.value.trim().toLowerCase();
+  const phone=regPhone.value.trim(), school=regSchool.value.trim()||"Ngendalel Schools";
+  const pw=regPassword.value, pw2=regPassword2.value;
+  if(pw.length<6)return showAuthMsg("authError","Password must contain at least 6 characters.");
+  if(pw!==pw2)return showAuthMsg("authError","The two passwords do not match.");
+  let a=accountGet();
+  if(a.some(x=>(x.email||"").toLowerCase()===email || (x.tscNo||"").toLowerCase()===tscNo.toLowerCase()))
+    return showAuthMsg("authError","An account already exists with that email or TSC/Staff number.");
+  const passHash=await hashPassword(pw);
+  const acct={id:"AC"+Date.now(),name,tscNo,email,phone,school,role:"Teacher",passwordHash:passHash,createdAt:new Date().toISOString()};
+  a.push(acct);accountSet(a);
+  localStorage.setItem(SESSION_KEY,JSON.stringify({id:acct.id}));
+  showAuthMsg("authSuccess","Teacher account created successfully. Opening your workspace…");
+  setTimeout(()=>enterAuthenticatedAccount(acct),500);
+}
+async function loginAccount(){
+  const ident=authLoginId.value.trim().toLowerCase(), pw=authLoginPassword.value;
+  const a=accountGet();
+  const acct=a.find(x=>(x.email||"").toLowerCase()===ident || (x.tscNo||"").toLowerCase()===ident);
+  if(!acct)return showAuthMsg("authError","Account not found. Check your email or TSC/Staff number.");
+  const passHash=await hashPassword(pw);
+  if(passHash!==acct.passwordHash)return showAuthMsg("authError","Incorrect password.");
+  localStorage.setItem(SESSION_KEY,JSON.stringify({id:acct.id}));
+  enterAuthenticatedAccount(acct);
+}
+function currentAccount(){
+  try{
+    const s=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
+    if(!s)return null;
+    return accountGet().find(x=>x.id===s.id)||null;
+  }catch(e){return null}
+}
+function enterAuthenticatedAccount(acct){
+  document.getElementById("authGate").style.display="none";
+  headerUserChip.textContent=acct.name+" • "+acct.role;
+  headerLogout.style.display="inline-block";
+  loginName.value=acct.name; loginRole.value=acct.role; loginSchool.value=acct.school;
+  roleBadge.textContent=acct.role; dashRole.textContent=acct.role;
+  localStorage.setItem(ROLEKEY,JSON.stringify({name:acct.name,role:acct.role,school:acct.school,email:acct.email,tscNo:acct.tscNo}));
+  updateTeacherHome({name:acct.name,role:acct.role,school:acct.school});
+  ensureTeacherProfile(acct);
+  renderWorkflowTeachers();
+  tab("home",document.querySelector(".nav button"));
+}
+function ensureTeacherProfile(acct){
+  let a=getRecords();
+  let r=a.find(x=>(x.tscNo||"").toLowerCase()===(acct.tscNo||"").toLowerCase());
+  if(!r){
+    r={id:"T"+Date.now(),name:acct.name,tscNo:acct.tscNo,idNo:"",schoolName:acct.school,countyName:"",subcountyName:"",designation:"Teacher",levelName:"",gradeName:"",subjectName:"",termName:"Term 1",yearName:"2026",appraiserName:"",appraiserTsc:"",headName:"",headTsc:""};
+    a.push(r);setRecords(a);
+  }
+  if(typeof put==="function")put(r);
+  document.getElementById("recordId").value=r.id;
+  renderDashboard();renderAnalytics();updateTeacherHome(acct);
+}
+function logoutAccount(){
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(ROLEKEY);
+  document.getElementById("authGate").style.display="flex";
+  headerLogout.style.display="none";
+  headerUserChip.textContent="Not signed in";
+  showAuthTab("login");
+  authLoginPassword.value="";
+}
+function bootAuth(){
+  const acct=currentAccount();
+  if(acct) enterAuthenticatedAccount(acct);
+  else document.getElementById("authGate").style.display="flex";
+}
+
 setupDashboard();
 
 const ROLEKEY="tpadSmartV6Role";
 function enterSystem(){
- const u={name:document.getElementById("loginName").value||"User",role:document.getElementById("loginRole").value,school:document.getElementById("loginSchool").value||""};
+ const u={name:document.getElementById("loginName").value||"Teacher",role:document.getElementById("loginRole").value,school:document.getElementById("loginSchool").value||"Ngendalel Schools"};
  localStorage.setItem(ROLEKEY,JSON.stringify(u));
  document.getElementById("roleBadge").textContent=u.role;
  document.getElementById("dashRole").textContent=u.role;
+ updateTeacherHome(u);
  renderWorkflowTeachers();
- tab("dashboard",document.querySelectorAll(".nav button")[1]);
+ tab("home",document.querySelector(".nav button"));
 }
 function loadRole(){
- try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");if(u){loginName.value=u.name;loginRole.value=u.role;loginSchool.value=u.school;roleBadge.textContent=u.role;dashRole.textContent=u.role;}}catch(e){}
+ try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");if(u){loginName.value=u.name;loginRole.value=u.role;loginSchool.value=u.school;roleBadge.textContent=u.role;dashRole.textContent=u.role;updateTeacherHome(u);}}catch(e){}
+}
+function updateTeacherHome(u){
+ const role=u?.role||"Teacher", name=u?.name||"Teacher", school=u?.school||"Ngendalel Schools";
+ const isTeacher=role==="Teacher";
+ document.getElementById("teacherWelcome").textContent=name;
+ document.getElementById("teacherSchoolWelcome").textContent=school;
+ document.getElementById("homeRole").textContent=role;
+ document.getElementById("homeSchool").textContent=school;
+ document.getElementById("adminQuick").style.display=isTeacher?"none":"block";
+ const r=getCurrentRecordForTeacher(name);
+ const lo=Number(r?.loScore||0), t3=Number(r?.target3||0), lik=Number(r?.likert||0);
+ document.getElementById("teacherLO").textContent=lo.toFixed(1);
+ document.getElementById("teacherT3").textContent=t3.toFixed(2);
+ document.getElementById("teacherLikert").textContent=lik.toFixed(2);
+ let complete=0;
+ if(r){if(r.name)complete++;if(r.standards)complete++;if(r.observation)complete++;if(r.progress)complete++;if(r.gap||r.intervention||r.development)complete++;if(r.generated)complete++;}
+ const pct=Math.round(complete/6*100);
+ document.getElementById("teacherProgressBar").style.width=pct+"%";
+ document.getElementById("teacherProgressText").textContent=pct+"% complete";
+}
+function getCurrentRecordForTeacher(name){
+ const a=getRecords();
+ return a.find(r=>(r.name||"").toLowerCase()===(name||"").toLowerCase())||a[0]||null;
+}
+function openTeacher(id){
+ const btn=[...document.querySelectorAll(".nav button")].find(b=>b.textContent.toLowerCase().includes(id==="profile"?"1. profile":id==="standards"?"2. tpad":id==="observation"?"3. lesson":id==="progress"?"4. progress":id==="gaps"?"5. gaps":id==="summary"?"6. summary":id));
+ tab(id,btn||document.querySelector(".nav button"));
 }
 function renderWorkflowTeachers(){
  const s=document.getElementById("workflowTeacher"), a=getRecords();
@@ -521,6 +714,8 @@ function saveWorkflow(){
 }
 
 loadRole();renderWorkflowTeachers();
+setTimeout(()=>{try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");if(u)updateTeacherHome(u)}catch(e){}},100);
+
 
 function renderAnalytics(){
  const a=getRecords();document.getElementById("anCount").textContent=a.length;
@@ -590,6 +785,7 @@ function renderV8Home(){
  try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");homeRole.textContent=u?u.role:"Guest"}catch(e){}
 }
 setupV8Locations();loadSchool();renderUsers();renderAssignments();renderV8Home();
+bootAuth();
 
 </script>
 <div id="mobileBar" class="no-print">
