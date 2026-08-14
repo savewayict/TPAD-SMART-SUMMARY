@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b63"><title>TPAD Smart V2</title>
+<style>
+:root{--nav:#123b63;--nav2:#0d2c4a;--bg:#f4f7fb;--line:#d9e2ec;--text:#172033;--muted:#66758a;--ok:#147a52}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{background:linear-gradient(135deg,var(--nav),var(--nav2));color:#fff;padding:18px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px #0002}
+header h1{margin:0;font-size:21px}header p{margin:4px 0 0;font-size:12px;opacity:.9}
+main{max-width:1100px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px;margin-bottom:14px;box-shadow:0 2px 8px #123b630c}
+h2{margin:0 0 12px;color:var(--nav);font-size:18px}h3{font-size:14px;color:var(--nav);margin:18px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+label{font-size:11px;font-weight:700;color:#44546a}input,select,textarea{width:100%;margin-top:5px;border:1px solid #cbd6e2;border-radius:7px;padding:9px;font-size:13px;background:#fff}textarea{min-height:70px}select:disabled{background:#eef2f6;color:#7a8797}
+button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:4px 4px 0 0;cursor:pointer}.primary{background:var(--nav);color:#fff}.secondary{background:#e8eff6;color:var(--nav)}.danger{background:#fdeaea;color:#9c2424}
+.nav{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.nav button{white-space:nowrap}.nav .active{background:#dbe9f7;color:var(--nav)}
+.panel{display:none}.panel.active{display:block}
+.table{width:100%;border-collapse:collapse}.table th,.table td{border:1px solid var(--line);padding:7px;font-size:12px;vertical-align:top}.table th{background:#edf3f8;text-align:left}.table input,.table select{margin:0;padding:7px}
+.badge{display:inline-block;padding:5px 9px;border-radius:18px;background:#eaf4ef;color:var(--ok);font-weight:700;font-size:12px}.score{font-size:25px;font-weight:800;color:var(--nav)}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi>div{background:#f5f8fb;border:1px solid var(--line);border-radius:9px;padding:12px}.kpi b{display:block;font-size:21px;color:var(--nav)}.small{font-size:11px;color:var(--muted)}
+.summaryOnly{display:none}.summaryOnly.show{display:block}
+@media(max-width:720px){.grid,.grid3,.kpi{grid-template-columns:1fr}.table{min-width:720px}.scroll{overflow-x:auto}.nav{padding-bottom:2px}}
+@media print{header,.nav,.entryOnly,.no-print{display:none!important}.summaryOnly{display:block!important}.card{box-shadow:none;border:1px solid #aaa}body{background:#fff}}
+
+.v8top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.v8pill{padding:6px 10px;border-radius:20px;background:#e8eff6;color:#123b63;font-size:11px;font-weight:700}
+.v8notice{background:#fff8df;border:1px solid #eadb9a;padding:10px;border-radius:8px;font-size:12px}
+.progressbar{height:9px;background:#e7edf3;border-radius:8px;overflow:hidden}.progressbar span{display:block;height:100%;width:0;background:#123b63}
+.modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:30;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:14px;padding:18px;max-width:600px;width:100%;max-height:90vh;overflow:auto}
+@media print{.v8-only{display:none!important}}
+</style><meta name="theme-color" content="#123b63">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+</head>
+<body>
+<header><h1>SAVEWAY ICT — TPAD SMART</h1><p>Version 2 • TPAD preparation, scoring and reporting prototype</p></header>
+<main>
+<input type="hidden" id="recordId">
+
+
+
+
+<section id="home" class="panel active card">
+<div class="v8top"><span class="v8pill">SAVEWAY ICT — TPAD SMART</span><span id="homeRole" class="v8pill">Guest</span><span id="homeSchool" class="v8pill">No school selected</span></div>
+<div class="v8top"><span class="v8pill">HOSTED BY SAVEWAY ICT</span><button id="installBtn" class="primary" style="display:none" onclick="installApp()">📲 Install App</button></div>
+<h2>Welcome to your TPAD Workspace</h2>
+<p class="small">A mobile-first school appraisal management prototype. Use the quick actions below to move through the TPAD workflow.</p>
+<div class="kpi">
+<div>Teachers<b id="homeTeachers">0</b></div><div>Pending<b id="homePending">0</b></div><div>Completed<b id="homeCompleted">0</b></div><div>Avg LO<b id="homeAvg">0</b></div>
+</div>
+<div class="grid3" style="margin-top:12px">
+<button class="primary" onclick="openV8('school')">🏫 School Profile</button>
+<button class="primary" onclick="openV8('users')">👥 User & Role Management</button>
+<button class="primary" onclick="openV8('assign')">📋 Assign Appraisers</button>
+<button class="secondary" onclick="openV8('dashboard')">📊 School Dashboard</button>
+<button class="secondary" onclick="openV8('analytics')">📈 Analytics</button>
+<button class="secondary" onclick="openV8('profile')">➕ Teacher Appraisal</button>
+</div>
+<div class="v8notice" style="margin-top:14px"><b>Platform Host:</b> Saveway ICT &nbsp; | &nbsp; <b>School Tenant:</b> Ngendalel Schools<br><br>Prototype mode: records are stored locally in this browser. Cloud authentication, encryption, backups and official-system integration require a secure backend and appropriate authorization.</div>
+</section>
+
+<section id="school" class="panel card">
+<h2>School Profile & Registration</h2>
+<div class="grid3">
+<label>School Name<input id="v8SchoolName"></label><label>UIC / Institution Code<input id="v8SchoolCode"></label><label>School Type<select id="v8SchoolType"><option>Public Primary</option><option>Public Junior School</option><option>Public Senior School</option><option>Comprehensive School</option><option>Private School</option><option>Other</option></select></label>
+<label>County<select id="v8County"></select></label><label>Sub-County<select id="v8Subcounty"></select></label><label>Head of Institution<input id="v8Head"></label>
+<label>Head TSC No.<input id="v8HeadTsc"></label><label>School Email<input id="v8Email" type="email"></label><label>Phone<input id="v8Phone" type="tel"></label>
+</div>
+<button class="primary" onclick="saveSchool()">Save School Profile</button>
+<button class="secondary" onclick="loadSchool()">Load Saved Profile</button>
+</section>
+
+<section id="users" class="panel card">
+<h2>User & Role Management</h2>
+<p class="small">V8 local role-management demonstration. A production version will use server-side authentication and permissions.</p>
+<div class="grid3">
+<label>Name<input id="v8UserName"></label><label>TSC / Staff No.<input id="v8UserNo"></label>
+<label>Role<select id="v8UserRole"><option>Teacher</option><option>Appraiser / Deputy Head</option><option>Head of Institution</option><option>School Administrator</option></select></label>
+</div>
+<button class="primary" onclick="addUser()">Add User</button>
+<div class="scroll" style="margin-top:12px"><table class="table"><thead><tr><th>Name</th><th>Staff/TSC No.</th><th>Role</th><th>Action</th></tr></thead><tbody id="v8Users"></tbody></table></div>
+</section>
+
+<section id="assign" class="panel card">
+<h2>Teacher → Appraiser Assignment</h2>
+<div class="grid3">
+<label>Teacher<select id="assignTeacher"></select></label><label>Appraiser<select id="assignAppraiser"></select></label><label>Appraisal Period<input id="assignPeriod" value="2026"></label>
+</div>
+<button class="primary" onclick="saveAssignment()">Save Assignment</button>
+<div class="scroll" style="margin-top:12px"><table class="table"><thead><tr><th>Teacher</th><th>Appraiser</th><th>Period</th><th>Action</th></tr></thead><tbody id="assignmentRows"></tbody></table></div>
+</section>
+
+<section id="analytics" class="panel card">
+<h2>V7 Analytics & Management Reports</h2>
+<div class="kpi">
+<div>Teachers<b id="anCount">0</b></div><div>Avg LO /100<b id="anLO">0</b></div><div>Avg Target 3 /3<b id="anT3">0</b></div><div>Completed<b id="anCompleted">0</b></div>
+</div>
+<h3>Performance Distribution</h3>
+<div class="scroll"><table class="table"><thead><tr><th>Teacher</th><th>LO /100</th><th>Target 3 /3</th><th>Workflow Stage</th><th>Priority</th></tr></thead><tbody id="analyticsRows"></tbody></table></div>
+<h3>School Management Actions</h3>
+<div class="grid"><label>Priority Area<textarea id="anPriority" placeholder="e.g. Lesson observation, professional development, learner progress"></textarea></label><label>Management Action<textarea id="anAction"></textarea></label></div>
+<button class="primary" onclick="saveAnalyticsNote()">Save Management Note</button>
+<button class="secondary" onclick="printAnalytics()">Print Analytics Report</button>
+</section>
+<section id="product" class="panel card">
+<h2>TPAD Smart — Product Demonstration</h2>
+<p>This section is a demonstration/proposal outline for presenting the independent software concept to a school, education partner or TSC stakeholder.</p>
+<div class="grid3">
+<div><b>Core Value</b><p class="small">Simplifies TPAD preparation, evidence organization, lesson observation scoring and reporting.</p></div>
+<div><b>Scalability</b><p class="small">Designed to grow from one teacher to school, sub-county and county dashboards.</p></div>
+<div><b>Connectivity</b><p class="small">Current prototype works locally; future versions can add secure synchronization.</p></div>
+</div>
+<h3>Proposed Future Platform</h3>
+<div class="scroll"><table class="table"><thead><tr><th>Module</th><th>Purpose</th><th>Status</th></tr></thead>
+<tbody><tr><td>Teacher Workspace</td><td>Targets, evidence, observation and self-appraisal</td><td>Prototype</td></tr>
+<tr><td>Appraiser Workspace</td><td>Review, comments, scores and recommendations</td><td>Prototype</td></tr>
+<tr><td>Head Dashboard</td><td>School-level oversight and reports</td><td>Prototype</td></tr>
+<tr><td>Analytics</td><td>Trends, gaps and development priorities</td><td>V7</td></tr>
+<tr><td>Secure Cloud</td><td>Authentication, backup and synchronization</td><td>Future</td></tr>
+<tr><td>Integration Layer</td><td>Potential integration subject to official authorization</td><td>Future</td></tr>
+</tbody></table></div>
+<button class="primary" onclick="window.print()">Print Product Brief</button>
+</section>
+
+<section id="access" class="panel card active">
+<h2>V6 Access & User Role</h2>
+<p class="small">Local demonstration of role-based access. This prototype does not replace official TSC authentication.</p>
+<div class="grid3">
+<label>User Name<input id="loginName" placeholder="Enter your name"></label>
+<label>Role<select id="loginRole"><option>Teacher</option><option>Appraiser / Deputy Head</option><option>Head of Institution</option><option>School Administrator</option></select></label>
+<label>School / Institution<input id="loginSchool"></label>
+</div>
+<button class="primary" onclick="enterSystem()">Enter TPAD Workspace</button>
+<span id="roleBadge" class="badge" style="margin-left:8px">Not signed in</span>
+</section>
+
+<section id="dashboard" class="panel card">
+<h2>School TPAD Dashboard <span id="dashRole" class="badge">Demo</span></h2>
+<p class="small">Manage multiple teacher records on this device. This prototype is independent of the official TSC TPAD platform.</p>
+<div class="kpi">
+<div>Total Teachers<b id="dashCount">0</b></div>
+<div>Generated<b id="dashGenerated">0</b></div>
+<div>Average LO /100<b id="dashAvgLO">0</b></div>
+<div>Average Target 3 /3<b id="dashAvgT3">0</b></div>
+</div>
+<div class="grid3" style="margin-top:12px">
+<label>School / Institution<input id="dashSchoolFilter" placeholder="Filter by school"></label>
+<label>County<select id="dashCountyFilter"><option value="">All Counties</option></select></label>
+<label>Search Teacher<input id="dashSearch" placeholder="Name or TSC number"></label>
+</div>
+<div style="margin-top:12px">
+<button class="primary" onclick="newTeacher()">+ Add Teacher</button>
+<button class="secondary" onclick="exportRecords()">Export Records</button>
+<button class="secondary" onclick="importRecords()">Import Records</button>
+<button class="danger" onclick="deleteAllRecords()">Delete All Records</button>
+<input id="importFile" type="file" accept=".json" style="display:none" onchange="handleImport(event)">
+</div>
+<div class="scroll" style="margin-top:14px"><table class="table">
+<thead><tr><th>Teacher</th><th>TSC No.</th><th>School</th><th>County</th><th>Level</th><th>Grade</th><th>Learning Area</th><th>LO /100</th><th>Target 3 /3</th><th>Actions</th></tr></thead>
+<tbody id="teacherRows"></tbody>
+</table></div>
+</section>
+
+<div class="nav no-print">
+<button class="active" onclick="tab('home',this)">Home</button>
+<button onclick="tab('access',this)">Access</button>
+<button onclick="tab('dashboard',this)">Dashboard</button><button onclick="tab('school',this)">School</button><button onclick="tab('users',this)">Users</button><button onclick="tab('assign',this)">Assignments</button><button onclick="tab('analytics',this)">Analytics</button><button onclick="tab('product',this)">Product Brief</button>
+<button onclick="tab('workflow',this)">Workflow</button><button onclick="tab('profile',this)">1. Profile</button>
+<button onclick="tab('standards',this)">2. TPAD Standards</button>
+<button onclick="tab('observation',this)">3. Lesson Observation</button>
+<button onclick="tab('progress',this)">4. Progress & Attendance</button>
+<button onclick="tab('gaps',this)">5. Gaps & Development</button>
+<button onclick="tab('summary',this)">6. Summary</button>
+</div>
+
+
+<section id="workflow" class="panel card">
+<h2>TPAD Workflow</h2>
+<div class="kpi">
+<div>Teacher<b>Self-Appraisal</b></div>
+<div>Appraiser<b>Review</b></div>
+<div>Head<b>Approval</b></div>
+<div>Record<b>Complete</b></div>
+</div>
+<div class="grid3" style="margin-top:12px">
+<label>Selected Teacher<select id="workflowTeacher"></select></label>
+<label>Current Stage<select id="workflowStage"><option>Draft</option><option>Teacher Submitted</option><option>Appraiser Reviewed</option><option>Head Reviewed</option><option>Completed</option></select></label>
+<label>Workflow Comment<textarea id="workflowComment"></textarea></label>
+</div>
+<button class="primary" onclick="saveWorkflow()">Save Workflow Status</button>
+</section>
+
+<section id="profile" class="panel card entryOnly">
+<h2>Teacher & Appraisal Profile</h2><div class="grid3">
+<label>Teacher's Name<input id="teacher"></label><label>TSC Number<input id="tsc"></label><label>ID Number<input id="idno"></label>
+<label>School / Institution<input id="school"></label><label>County<select id="county"><option value="">Select County</option></select></label><label>Sub-County<select id="subcounty" disabled><option value="">Select County First</option></select></label>
+<label>Designation<input id="designation"></label><label>School Level<select id="level"><option value="">Select Level</option><option>Pre-Primary</option><option>Primary</option><option>Junior School</option><option>Senior School</option><option>Special Needs Education</option></select></label>
+<label>Grade / Class<select id="grade" disabled><option value="">Select Level First</option></select></label>
+<label>Learning Area / Subject<select id="subject" disabled><option value="">Select Level First</option></select></label>
+<label>Term<select id="term"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></label><label>Year<input id="year" value="2026"></label><label>Appraiser Name<input id="appraiser"></label>
+<label>Appraiser TSC No.<input id="appraiserTsc"></label><label>Head of Institution<input id="head"></label><label>Head TSC No.<input id="headTsc"></label>
+</div>
+</section>
+
+<section id="standards" class="panel card entryOnly">
+<h2>TPAD Teaching Standards</h2>
+<p class="small">The current five-standard structure is represented here. Enter the appraisee, appraiser and agreed weights. Maximum weights are 24, 12, 9, 30 and 25 respectively, totaling 100. The app can later make these standards configurable.</p>
+<div id="standardsBox"></div>
+</section>
+
+<section id="observation" class="panel card entryOnly">
+<h2>Lesson Observation</h2>
+<p class="small">Raw Lesson Observation score is out of 100. Each performance area is converted to a 1–5 Likert rating. The resulting lesson-observation rating is also shown as the TPAD Target 3 contribution on a maximum scale of 3.</p>
+
+<div class="scroll"><table class="table"><thead><tr><th>Performance Area</th><th>Indicator</th><th>Max</th><th>Score</th></tr></thead><tbody id="obsDetail"></tbody></table></div>
+
+<div class="kpi" style="margin-top:12px">
+<div>Raw LO Score<b id="loRaw">0/100</b></div>
+<div>Likert Rating<b id="loLikert">0.00/5</b></div>
+<div>TPAD Target 3<b id="loTarget3">0.00/3</b></div>
+<div>Target 3 Max<b>3.00</b></div>
+</div>
+
+<p class="small" style="margin-top:10px">TPAD Target 3 conversion used by this prototype: Likert rating ÷ 5 × 3. This is displayed separately from the official 100-mark Lesson Observation Form score.</p>
+
+<div class="grid" style="margin-top:12px"><label>Observer's Summary<textarea id="obsSummary"></textarea></label><label>Observer's Recommendation<textarea id="obsRecommendation"></textarea></label></div>
+<div class="grid3"><label>Observation Date<input id="obsDate" type="date"></label><label>Learners Present<input id="learners" type="number" min="0"></label><label>Lesson / Topic<input id="topic"></label></div>
+</section>
+
+<section id="progress" class="panel card entryOnly">
+<h2>Learner Progress & Lesson Attendance</h2>
+<h3>Learner Progress</h3><div class="scroll"><table class="table" id="progressTable"><thead><tr><th>Subject</th><th>Class/Form</th><th>Target Mean</th><th>Current/Previous Mean</th><th>Term 1 Mean</th><th>Term 2 Mean</th><th>Term 3 Mean</th><th>Remarks</th></tr></thead><tbody><tr class="pRow"><td><input></td><td><input></td><td><input type="number" step=".01"></td><td><input type="number" step=".01"></td><td><input type="number" step=".01"></td><td><input type="number" step=".01"></td><td><input type="number" step=".01"></td><td><input></td></tr></tbody></table></div><button class="secondary" onclick="addProgress()">+ Add learner progress row</button>
+<h3>Lesson Attendance</h3><div class="scroll"><table class="table" id="attendanceTable"><thead><tr><th>Week Ending</th><th>Lessons Expected</th><th>Actual Taught</th><th>Recovered</th><th>Lessons Missed</th><th>% Taught</th><th>Remarks</th></tr></thead><tbody><tr class="aRow"><td><input type="date"></td><td><input type="number" min="0"></td><td><input type="number" min="0"></td><td><input type="number" min="0"></td><td class="miss">0</td><td class="pct">0%</td><td><input></td></tr></tbody></table></div><button class="secondary" onclick="addAttendance()">+ Add attendance row</button>
+</section>
+
+<section id="gaps" class="panel card entryOnly">
+<h2>TPAD Gaps & Professional Development</h2>
+<div class="grid"><label>Performance / Professional Gap<textarea id="gap"></textarea></label><label>Intervention Measure Undertaken<textarea id="intervention"></textarea></label><label>Impact on Learning Outcomes / Teacher Content<textarea id="impact"></textarea></label><label>Appraisee's Comment<textarea id="appraiseeComment"></textarea></label><label>Appraiser's Comment<textarea id="appraiserComment"></textarea></label><label>Development Priority<textarea id="development"></textarea></label></div>
+</section>
+
+<section id="summary" class="panel card summaryOnly">
+<h2>TPAD SUMMARY REPORT</h2><div id="summaryHead"></div>
+<div class="kpi" style="margin:12px 0"><div>Standards Score<b id="stdScore">0/100</b></div><div>Lesson Observation<b id="loScore">0/100</b></div><div>Likert<b id="overallLikert">0.00/5</b></div><div>Target 3<b id="summaryTarget3">0.00/3</b></div></div>
+<h3>Teaching Standards Rating</h3><div class="scroll"><table class="table"><thead><tr><th>Standard</th><th>Maximum</th><th>Agreed Weight</th><th>Rating /5</th></tr></thead><tbody id="stdResult"></tbody></table></div>
+<h3>Lesson Observation</h3><div class="scroll"><table class="table"><thead><tr><th>Area</th><th>Score</th><th>Maximum</th><th>Likert /5</th></tr></thead><tbody id="obsResult"></tbody></table></div><p><span class="badge">TPAD Target 3 (max 3)</span> <span class="score" id="summaryTarget3Big">0.00/3</span></p>
+<p><span class="badge">Lesson Observation Score</span> <span class="score" id="loBig">0/100</span></p>
+<h3>Observer's Summary</h3><p id="outObs">—</p><h3>Observer's Recommendation</h3><p id="outRec">—</p>
+<h3>TPAD Gaps & Development</h3><p><b>Gap:</b> <span id="outGap">—</span></p><p><b>Intervention:</b> <span id="outIntervention">—</span></p><p><b>Impact:</b> <span id="outImpact">—</span></p><p><b>Development Priority:</b> <span id="outDev">—</span></p>
+<p style="margin-top:35px">Teacher's Signature: __________________________ &nbsp; Date: ____________</p><p>Appraiser's Signature: __________________________ &nbsp; Date: ____________</p><p>Head of Institution: _____________________________ &nbsp; Date: ____________</p>
+<div class="no-print"><button class="primary" onclick="window.print()">Print / Save as PDF</button><button class="secondary" onclick="tab('profile',document.querySelector('.nav button'))">Edit</button></div>
+</section>
+
+<section class="card entryOnly no-print"><button class="primary" onclick="generate()">Generate Complete Summary</button><button class="primary" onclick="saveRecord()">Save Teacher Record</button><button class="secondary" onclick="loadCurrent()">Load Saved Record</button><button class="danger" onclick="wipe()">Clear Form</button></section>
+</main>
+<script>
+const standards=[
+["Professional Knowledge and Practice",24,["Demonstrate mastery of subject content and use appropriate instructional methods","Undertake lesson observation at least once a term","Utilize teaching/learning resources effectively","Prepare professional documents based on current syllabus/designs","Identify learners' capability and learning styles","Identify and nurture learners' talents","Access, retrieve and integrate ICT in teaching and learning","Carry out learner assessment, feedback and reporting on learners' learning"]],
+["Comprehensive Learning Environment",12,["Create child-friendly school/class environment through planned activities demonstrating respect, equity, inclusion and moral values","Create a stimulating classroom environment","Ensure safety of learners","Manage learners' conduct and behaviour"]],
+["Teacher Professional Development",9,["Prepare Self Professional Development Support Plan","Identify professional gaps","Engage in continuous and relevant career growth and development activities"]],
+["Teacher Conduct and Professionalism",30,["Act in the best interest of the learner and maintain high standards of ethics and professional requirements within and outside the institution","Demonstrate knowledge on legal requirements in education","Comply with professional requirements in teaching and learning","Observe punctuality in lesson attendance, performance of duty and preparation of professional documents","Timely syllabus coverage and meeting of deadlines"]],
+["Participation in Professional Learning Community",25,["Join Professional Learning Community (PLC)","Collaborate with colleagues and broader professional learning community to support teaching and learning","Collaborate with parents/guardians and other stakeholders","Establish linkages with the community","Participate in programs organized in collaboration with educational bodies such as KNEC, MOE and KICD"]]
+];
+const obs=[
+["Lesson Organisation",16,["Review of previous lesson/content related to current lesson","State objective of current lesson","Link previous lesson to current lesson","Quality of introduction / captures learners' interest"]],
+["Content Delivery",20,["Mastery of content in line with syllabus","Answers students' questions accurately","Teaching with lesson notes and lesson plan","Summarises lesson by highlighting key points","Covers lesson within stipulated time"]],
+["Teaching Methods / Techniques",20,["Uses appropriate teaching methods","Uses appropriate teaching/learning aids","Uses varied teaching methods","Demonstrates innovation and creativity in teaching","Ability to stimulate learners"]],
+["Learner Involvement & Communication",24,["Answering and asking questions","Observation","Discussion and presentation","Experimentation","Field work / presentation","Discovery / presentation"]],
+["Classroom Management",20,["Arrangement of desks to enable a teacher to reach an individual student","Moving in class to observe students' work","Marking/checking students' work in class","No chorus answers / knowing learners by name","Cleanliness of classroom"]]
+];
+
+const counties={
+"Barishal":[],
+"County Placeholder":[]
+};
+const kenyaLocations={
+"Baringo":["Baringo Central","Baringo North","Baringo South","Eldama Ravine","Mogotio","Tiaty"],
+"Bomet":["Bomet Central","Bomet East","Chepalungu","Konoin","Sotik"],
+"Bungoma":["Bumula","Bungoma Central","Bungoma East","Bungoma North","Bungoma South","Bungoma West","Mt Elgon","Tongaren","Webuye East","Webuye West"],
+"Busia":["Budalangi","Butula","Matayos","Nambale","Samia","Teso North","Teso South"],
+"Elgeyo-Marakwet":["Keiyo North","Keiyo South","Marakwet East","Marakwet West"],
+"Embu":["Embu East","Embu North","Embu West","Mbeere North","Mbeere South"],
+"Garissa":["Dadaab","Fafi","Garissa Township","Hulugho","Ijara","Lagdera","Balambala"],
+"Homa Bay":["Homa Bay Town","Kabondo Kasipul","Karachuonyo","Kasipul","Mbita","Ndhiwa","Rangwe","Suba North"],
+"Isiolo":["Isiolo","Merti"],
+"Kajiado":["Isinya","Kajiado Central","Kajiado North","Kajiado South","Kajiado West"],
+"Kakamega":["Butere","Ikolomani","Kakamega Central","Kakamega East","Kakamega North","Kakamega South","Khwisero","Likuyani","Lugari","Lurambi","Matungu","Mumias East","Mumias West","Navakholo"],
+"Kericho":["Ainamoi","Belgut","Bureti","Kipkelion East","Kipkelion West","Soin/Sigowet"],
+"Kiambu":["Gatundu North","Gatundu South","Githunguri","Juja","Kabete","Kiambaa","Kiambu","Kikuyu","Lari","Limuru","Ruiru","Thika East","Thika West"],
+"Kilifi":["Chonyi","Ganze","Kaloleni","Kilifi North","Kilifi South","Magarini","Malindi","Rabai"],
+"Kirinyaga":["Kirinyaga Central","Mwea East","Mwea West","Ndia"],
+"Kisii":["Bobasi","Bomachoge Borabu","Bomachoge Chache","Bonchari","Kitutu Chache North","Kitutu Chache South","Masaba South","Nyaribari Chache","Nyaribari Masaba"],
+"Kisumu":["Kisumu Central","Kisumu East","Kisumu West","Muhoroni","Nyakach","Nyando","Seme"],
+"Kitui":["Ikutha","Katulani","Kisasi","Kitui Central","Kitui East","Kitui Rural","Kitui South","Kitui West","Kyuso","Lower Yatta","Matinyani","Mutitu","Mutomo","Mwingi Central","Mwingi East","Mwingi West"],
+"Kwale":["Kinango","Lunga Lunga","Matuga","Msambweni"],
+"Laikipia":["Laikipia Central","Laikipia East","Laikipia North"],
+"Lamu":["Lamu East","Lamu West"],
+"Machakos":["Kathiani","Kangundo","Machakos Town","Masinga","Matungulu","Mavoko","Mwala","Yatta"],
+"Makueni":["Kaiti","Kibwezi East","Kibwezi West","Kilome","Makueni","Mbooni"],
+"Mandera":["Banissa","Lafey","Mandera Central","Mandera East","Mandera North","Mandera South","Mandera West"],
+"Meru":["Buuri East","Buuri West","Igembe Central","Igembe North","Igembe South","Imenti Central","Imenti North","Imenti South","Tigania East","Tigania West"],
+"Migori":["Awendo","Kuria East","Kuria West","Migori","Nyatike","Rongo","Suna East","Suna West","Uriri"],
+"Marsabit":["Laisamis","Moyale","North Horr","Saku"],
+"Mombasa":["Changamwe","Jomvu","Kisauni","Likoni","Mvita","Nyali"],
+"Murang'a":["Gatanga","Kahuro","Kandara","Kangema","Kigumo","Kiharu","Mathioya"],
+"Nairobi":["Dagoretti North","Dagoretti South","Embakasi Central","Embakasi East","Embakasi North","Embakasi South","Embakasi West","Kamukunji","Kasarani","Kibra","Lang'ata","Makadara","Mathare","Roysambu","Ruaraka","Starehe","Westlands"],
+"Nakuru":["Bahati","Gilgil","Kuresoi North","Kuresoi South","Naivasha","Nakuru Town East","Nakuru Town West","Njoro","Rongai","Subukia"],
+"Nandi":["Aldai","Chesumei","Emgwen","Mosop","Nandi Hills","Tindiret"],
+"Narok":["Narok East","Narok North","Narok South","Narok West","Transmara East","Transmara West"],
+"Nyamira":["Borabu","Manga","Masaba North","Nyamira North","Nyamira South"],
+"Nyandarua":["Kinangop","Kipipiri","Ndaragwa","Ol Jorok","Ol Kalou"],
+"Nyeri":["Kieni East","Kieni West","Mathira East","Mathira West","Mukurwe-ini","Nyeri Town","Othaya","Tetu"],
+"Samburu":["Samburu East","Samburu North","Samburu West"],
+"Siaya":["Bondo","Gem","Rarieda","Ugenya","Ugunja","Ugenya"],
+"Taita-Taveta":["Mwatate","Taita","Taveta","Voi"],
+"Tana River":["Bura","Galole","Garsen"],
+"Tharaka-Nithi":["Chuka/Igamba-ini","Maara","Tharaka"],
+"Trans Nzoia":["Cherangany","Endebess","Kiminini","Kwanza","Saboti"],
+"Turkana":["Loima","Turkana Central","Turkana East","Turkana North","Turkana South","Turkana West"],
+"Uasin Gishu":["Ainabkoi","Kapseret","Kesses","Moiben","Soy","Turbo"],
+"Vihiga":["Emuhaya","Hamisi","Luanda","Sabatia","Vihiga"],
+"Wajir":["Eldas","Tarbaj","Wajir East","Wajir North","Wajir South","Wajir West"],
+"West Pokot":["Kipkomo","Pokot South","Pokot Central","Pokot North","West Pokot"],
+};
+const countyNames=["Baringo","Bomet","Bungoma","Busia","Elgeyo-Marakwet","Embu","Garissa","Homa Bay","Isiolo","Kajiado","Kakamega","Kericho","Kiambu","Kilifi","Kirinyaga","Kisii","Kisumu","Kitui","Kwale","Laikipia","Lamu","Machakos","Makueni","Mandera","Marsabit","Meru","Migori","Mombasa","Murang'a","Nairobi","Nakuru","Nandi","Narok","Nyamira","Nyandarua","Nyeri","Samburu","Siaya","Taita-Taveta","Tana River","Tharaka-Nithi","Trans Nzoia","Turkana","Uasin Gishu","Vihiga","Wajir","West Pokot"];
+function tab(id,btn){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
+
+const levelGrades={
+"Pre-Primary":["PP1","PP2"],
+"Primary":["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"],
+"Junior School":["Grade 7","Grade 8","Grade 9"],
+"Senior School":["Grade 10","Grade 11","Grade 12"],
+"Special Needs Education":["Pre-Primary","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"]
+};
+const levelSubjects={
+"Pre-Primary":["Language Activities","Mathematical Activities","Environmental Activities","Creative Activities","Psychomotor Activities"],
+"Primary":["English","Kiswahili","Mathematics","Environmental Activities","Science and Technology","Social Studies","Agriculture","Creative Arts","Religious Education","Home Science","Physical Education","Computer Studies"],
+"Junior School":["English","Kiswahili","Mathematics","Integrated Science","Social Studies","Business Studies","Agriculture","Creative Arts and Sports","Life Skills Education","Computer Science","Pre-Technical Studies","Religious Education","Health Education","Foreign Language","Indigenous Language"],
+"Senior School":["English","Kiswahili","Core Mathematics","Essential Mathematics","Community Service Learning","Biology","Chemistry","Physics","General Science","Agriculture","Computer Science","Home Science","Aviation Technology","Building Construction","Electrical Technology","Metal Technology","Power Mechanics","Wood Technology","Media Technology","Marine and Fisheries Technology","Business Studies","History and Citizenship","Geography","Literature in English","Fasihi ya Kiswahili","Advanced English","Arabic","French","German","Mandarin","Indigenous Language","Kenyan Sign Language","Religious Education","Sports and Recreation","Physical Education","Sports Coaching and Officiating","Sports Management","Music and Dance","Theatre and Film","Fine Art","Photography","Crafts"],
+"Special Needs Education":["English","Kiswahili","Mathematics","Integrated Science","Social Studies","Life Skills","Creative Arts","Physical Education","Computer Studies","Religious Education","Agriculture","Business Studies","Pre-Technical Studies"]
+};
+function setupAcademicSelectors(){
+const level=document.getElementById("level"), grade=document.getElementById("grade"), subject=document.getElementById("subject");
+level.addEventListener("change",()=>{
+ const gs=levelGrades[level.value]||[], ss=levelSubjects[level.value]||[];
+ grade.disabled=!gs.length; subject.disabled=!ss.length;
+ grade.innerHTML=gs.length?'<option value="">Select Grade / Class</option>'+gs.map(x=>`<option>${x}</option>`).join(""):'<option value="">Select Level First</option>';
+ subject.innerHTML=ss.length?'<option value="">Select Learning Area / Subject</option>'+ss.map(x=>`<option>${x}</option>`).join(""):'<option value="">Select Level First</option>';
+});
+}
+function build(){
+let b="";
+standards.forEach((s,i)=>{b+=`<h3>${i+1}. ${s[0]} — ${s[1]} marks</h3><div class="scroll"><table class="table"><thead><tr><th>Target</th><th>Max</th><th>Appraisee</th><th>Appraiser</th><th>Agreed</th></tr></thead><tbody>`;
+s[2].forEach(t=>{let max=s[1]/s[2].length;b+=`<tr><td>${t}</td><td>${max%1?max.toFixed(2):max}</td><td><input class="sw a${i}" type="number" min="0" max="${max}" step=".01" value="0"></td><td><input class="sw b${i}" type="number" min="0" max="${max}" step=".01" value="0"></td><td><input class="sw c${i}" type="number" min="0" max="${max}" step=".01" value="0"></td></tr>`});
+b+="</tbody></table></div>"});
+document.getElementById("standardsBox").innerHTML=b;
+
+let o="";
+obs.forEach((s,ai)=>s[2].forEach(t=>{o+=`<tr><td>${s[0]}</td><td>${t}</td><td>4</td><td><input class="om" data-area="${ai}" data-max="4" type="number" min="0" max="4" value="0"></td></tr>`}));
+document.getElementById("obsDetail").innerHTML=o;
+
+const county=document.getElementById("county"), sub=document.getElementById("subcounty");
+county.innerHTML='<option value="">Select County</option>'+countyNames.map(c=>`<option>${c}</option>`).join("");
+county.addEventListener("change",()=>{let list=kenyaLocations[county.value]||[];sub.disabled=!list.length;sub.innerHTML=list.length?'<option value="">Select Sub-County</option>'+list.map(x=>`<option>${x}</option>`).join(""):'<option value="">Select County First</option>';});
+}
+function generate(){
+let sums=standards.map((s,i)=>[...document.querySelectorAll(".c"+i)].reduce((a,x)=>a+(Number(x.value)||0),0));
+let total=sums.reduce((a,b)=>a+b,0);
+document.getElementById("stdScore").textContent=total.toFixed(2)+"/100";
+document.getElementById("stdResult").innerHTML=standards.map((s,i)=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${sums[i].toFixed(2)}</td><td>${(sums[i]/s[1]*5).toFixed(2)}/5</td></tr>`).join("");
+
+let areaTotals=obs.map((s,ai)=>[...document.querySelectorAll('.om[data-area="'+ai+'"]')].reduce((a,x)=>a+(Number(x.value)||0),0));
+let lo=areaTotals.reduce((a,b)=>a+b,0);
+let likert=lo/100*5;
+let target3=likert/5*3;
+document.getElementById("loScore").textContent=lo.toFixed(2)+"/100";
+document.getElementById("loRaw").textContent=lo.toFixed(2)+"/100";
+document.getElementById("loLikert").textContent=likert.toFixed(2)+"/5";
+document.getElementById("loTarget3").textContent=target3.toFixed(2)+"/3";
+document.getElementById("summaryTarget3").textContent=target3.toFixed(2)+"/3";
+document.getElementById("summaryTarget3Big").textContent=target3.toFixed(2)+"/3";
+document.getElementById("overallLikert").textContent=likert.toFixed(2)+"/5";
+document.getElementById("status").textContent="Generated";
+
+document.querySelectorAll(".or").forEach((x,i)=>x.textContent=(areaTotals[i]/obs[i][1]*5).toFixed(2));
+document.getElementById("obsResult").innerHTML=obs.map((x,i)=>`<tr><td>${x[0]}</td><td>${areaTotals[i].toFixed(2)}</td><td>${x[1]}</td><td>${(areaTotals[i]/x[1]*5).toFixed(2)}/5</td></tr>`).join("");
+
+document.getElementById("summaryHead").innerHTML=`<p><b>Teacher:</b> ${esc(teacher.value)} &nbsp; <b>TSC No.:</b> ${esc(tsc.value)}<br><b>School:</b> ${esc(school.value)} &nbsp; <b>County:</b> ${esc(county.value)} &nbsp; <b>Sub-County:</b> ${esc(subcounty.value)}<br><b>Term/Year:</b> ${esc(term.value)} / ${esc(year.value)}<br><b>Subject:</b> ${esc(subject.value)} &nbsp; <b>Class:</b> ${esc(grade.value)}<br><b>Appraiser:</b> ${esc(appraiser.value)} &nbsp; <b>Head:</b> ${esc(head.value)}</p>`;
+document.getElementById("outObs").textContent=obsSummary.value||"—";
+document.getElementById("outRec").textContent=obsRecommendation.value||"—";
+document.getElementById("outGap").textContent=gap.value||"—";
+document.getElementById("outIntervention").textContent=intervention.value||"—";
+document.getElementById("outImpact").textContent=impact.value||"—";
+document.getElementById("outDev").textContent=development.value||"—";
+document.getElementById("summary").classList.add("active","show");
+document.getElementById("summary").scrollIntoView({behavior:"smooth"});
+}
+function addProgress(){let tr=document.querySelector("#progressTable tbody tr").cloneNode(true);tr.querySelectorAll("input").forEach(x=>x.value="");document.querySelector("#progressTable tbody").appendChild(tr)}
+function addAttendance(){let tr=document.querySelector("#attendanceTable tbody tr").cloneNode(true);tr.querySelectorAll("input").forEach(x=>x.value="");tr.querySelector(".miss").textContent="0";tr.querySelector(".pct").textContent="0%";document.querySelector("#attendanceTable tbody").appendChild(tr)}
+function data(){let d={};document.querySelectorAll("input,select,textarea").forEach((x,i)=>{if(x.id)d[x.id]=x.value});d.stand=[...document.querySelectorAll(".sw")].map(x=>x.value);d.obs=[...document.querySelectorAll(".om")].map(x=>x.value);return d}
+function put(d){Object.entries(d).forEach(([k,v])=>{let x=document.getElementById(k);if(x)x.value=v});if(d.stand)document.querySelectorAll(".sw").forEach((x,i)=>x.value=d.stand[i]??0);if(d.obs)document.querySelectorAll(".om").forEach((x,i)=>x.value=d.obs[i]??0);if(d.county){document.getElementById("county").value=d.county;document.getElementById("county").dispatchEvent(new Event("change"));if(d.subcounty)document.getElementById("subcounty").value=d.subcounty}if(d.level){document.getElementById("level").value=d.level;document.getElementById("level").dispatchEvent(new Event("change"));if(d.grade)document.getElementById("grade").value=d.grade;if(d.subject)document.getElementById("subject").value=d.subject}}
+function save(){localStorage.setItem("tpadSmartV2",JSON.stringify(data()));alert("Saved on this device.")}function load(){let d=localStorage.getItem("tpadSmartV2");if(!d)return alert("No saved data found.");put(JSON.parse(d));alert("Saved data loaded.")}function wipe(){if(confirm("Clear entered data?")){location.reload()}}
+build(); setupAcademicSelectors();
+
+const DBKEY="tpadSmartV5Records";
+function getRecords(){try{return JSON.parse(localStorage.getItem(DBKEY)||"[]")}catch(e){return[]}}
+function setRecords(a){localStorage.setItem(DBKEY,JSON.stringify(a))}
+function collectRecord(){
+  generateSilent();
+  const d=data();
+  d.id=document.getElementById("recordId").value||("TPAD-"+Date.now());
+  d.name=document.getElementById("teacher").value||"Unnamed Teacher";
+  d.tscNo=document.getElementById("tsc").value||"";
+  d.schoolName=document.getElementById("school").value||"";
+  d.countyName=document.getElementById("county").value||"";
+  d.levelName=document.getElementById("level").value||"";
+  d.gradeName=document.getElementById("grade").value||"";
+  d.subjectName=document.getElementById("subject").value||"";
+  d.loScore=Number(document.getElementById("loRaw").textContent.split("/")[0])||0;
+  d.target3=Number(document.getElementById("loTarget3").textContent.split("/")[0])||0;
+  d.generatedAt=new Date().toISOString();
+  return d;
+}
+function generateSilent(){
+  let sums=standards.map((s,i)=>[...document.querySelectorAll(".c"+i)].reduce((a,x)=>a+(Number(x.value)||0),0));
+  let total=sums.reduce((a,b)=>a+b,0);
+  let areaTotals=obs.map((s,ai)=>[...document.querySelectorAll('.om[data-area="'+ai+'"]')].reduce((a,x)=>a+(Number(x.value)||0),0));
+  let lo=areaTotals.reduce((a,b)=>a+b,0), likert=lo/100*5, target3=likert/5*3;
+  document.getElementById("loRaw").textContent=lo.toFixed(2)+"/100";
+  document.getElementById("loLikert").textContent=likert.toFixed(2)+"/5";
+  document.getElementById("loTarget3").textContent=target3.toFixed(2)+"/3";
+}
+function saveRecord(){
+  const r=collectRecord(), a=getRecords(), idx=a.findIndex(x=>x.id===r.id);
+  if(idx>=0)a[idx]=r; else a.push(r);
+  setRecords(a); document.getElementById("recordId").value=r.id; renderDashboard(); renderWorkflowTeachers(); renderAnalytics();
+  alert("Teacher record saved on this device.");
+}
+function loadRecord(id){
+  const r=getRecords().find(x=>x.id===id); if(!r)return;
+  put(r); document.getElementById("recordId").value=r.id;
+  tab("profile",document.querySelectorAll(".nav button")[1]);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function loadCurrent(){
+  const id=document.getElementById("recordId").value;
+  if(id) loadRecord(id); else alert("No saved record is selected.");
+}
+function newTeacher(){
+  if(confirm("Start a new teacher record? Unsaved form changes will be cleared.")){
+    location.hash="new"; location.reload();
+  }
+}
+function deleteRecord(id){
+  if(!confirm("Delete this teacher record?"))return;
+  setRecords(getRecords().filter(x=>x.id!==id)); renderDashboard();renderAnalytics();renderWorkflowTeachers();
+}
+function deleteAllRecords(){
+  if(confirm("Delete ALL saved teacher records from this device?")){localStorage.removeItem(DBKEY);renderDashboard();renderAnalytics();renderWorkflowTeachers();}
+}
+function renderDashboard(){
+  const a=getRecords(), q=(document.getElementById("dashSearch")?.value||"").toLowerCase();
+  const school=(document.getElementById("dashSchoolFilter")?.value||"").toLowerCase();
+  const county=document.getElementById("dashCountyFilter")?.value||"";
+  const rows=a.filter(r=>(!q||(r.name||"").toLowerCase().includes(q)||(r.tscNo||"").toLowerCase().includes(q))&&(!school||(r.schoolName||"").toLowerCase().includes(school))&&(!county||r.countyName===county));
+  document.getElementById("dashCount").textContent=a.length;
+  document.getElementById("dashGenerated").textContent=a.filter(r=>r.generatedAt).length;
+  const avglo=a.length?a.reduce((s,r)=>s+(Number(r.loScore)||0),0)/a.length:0;
+  const avgt3=a.length?a.reduce((s,r)=>s+(Number(r.target3)||0),0)/a.length:0;
+  document.getElementById("dashAvgLO").textContent=avglo.toFixed(1);
+  document.getElementById("dashAvgT3").textContent=avgt3.toFixed(2);
+  document.getElementById("teacherRows").innerHTML=rows.length?rows.map(r=>`<tr>
+<td>${esc(r.name)}</td><td>${esc(r.tscNo)}</td><td>${esc(r.schoolName)}</td><td>${esc(r.countyName)}</td><td>${esc(r.levelName)}</td><td>${esc(r.gradeName)}</td><td>${esc(r.subjectName)}</td>
+<td>${Number(r.loScore||0).toFixed(1)}</td><td>${Number(r.target3||0).toFixed(2)}</td>
+<td><button class="secondary" onclick="loadRecord('${r.id}')">Open</button><button class="danger" onclick="deleteRecord('${r.id}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center">No teacher records saved yet.</td></tr>`;
+}
+function setupDashboard(){
+ const cf=document.getElementById("dashCountyFilter");
+ cf.innerHTML='<option value="">All Counties</option>'+countyNames.map(c=>`<option>${c}</option>`).join("");
+ ["dashSchoolFilter","dashCountyFilter","dashSearch"].forEach(id=>document.getElementById(id).addEventListener("input",renderDashboard));
+ renderDashboard();
+}
+function exportRecords(){
+ const blob=new Blob([JSON.stringify(getRecords(),null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="TPAD_Smart_Summary_V5_Records.json";a.click();URL.revokeObjectURL(a.href);
+}
+function importRecords(){document.getElementById("importFile").click()}
+function handleImport(e){
+ const f=e.target.files[0];if(!f)return;
+ const rd=new FileReader();rd.onload=()=>{try{
+   const incoming=JSON.parse(rd.result); if(!Array.isArray(incoming))throw new Error();
+   const a=getRecords(); incoming.forEach(r=>{const i=a.findIndex(x=>x.id===r.id);if(i>=0)a[i]=r;else a.push(r)});setRecords(a);renderDashboard();alert("Records imported successfully.");
+ }catch(err){alert("Invalid TPAD records file.")}};
+ rd.readAsText(f);e.target.value="";
+}
+
+setupDashboard();
+
+const ROLEKEY="tpadSmartV6Role";
+function enterSystem(){
+ const u={name:document.getElementById("loginName").value||"User",role:document.getElementById("loginRole").value,school:document.getElementById("loginSchool").value||""};
+ localStorage.setItem(ROLEKEY,JSON.stringify(u));
+ document.getElementById("roleBadge").textContent=u.role;
+ document.getElementById("dashRole").textContent=u.role;
+ renderWorkflowTeachers();
+ tab("dashboard",document.querySelectorAll(".nav button")[1]);
+}
+function loadRole(){
+ try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");if(u){loginName.value=u.name;loginRole.value=u.role;loginSchool.value=u.school;roleBadge.textContent=u.role;dashRole.textContent=u.role;}}catch(e){}
+}
+function renderWorkflowTeachers(){
+ const s=document.getElementById("workflowTeacher"), a=getRecords();
+ s.innerHTML=a.length?a.map(r=>`<option value="${r.id}">${esc(r.name)} — ${esc(r.tscNo||"")}</option>`).join(""):"<option value=''>No saved teachers</option>";
+}
+function saveWorkflow(){
+ const id=document.getElementById("workflowTeacher").value;if(!id)return alert("Add a teacher record first.");
+ const a=getRecords(),r=a.find(x=>x.id===id);if(!r)return;
+ r.workflowStage=document.getElementById("workflowStage").value;
+ r.workflowComment=document.getElementById("workflowComment").value;
+ r.workflowUpdated=new Date().toISOString();setRecords(a);renderDashboard();alert("Workflow status saved.");
+}
+
+loadRole();renderWorkflowTeachers();
+
+function renderAnalytics(){
+ const a=getRecords();document.getElementById("anCount").textContent=a.length;
+ const avglo=a.length?a.reduce((s,r)=>s+(Number(r.loScore)||0),0)/a.length:0;
+ const avgt3=a.length?a.reduce((s,r)=>s+(Number(r.target3)||0),0)/a.length:0;
+ document.getElementById("anLO").textContent=avglo.toFixed(1);document.getElementById("anT3").textContent=avgt3.toFixed(2);
+ document.getElementById("anCompleted").textContent=a.filter(r=>r.workflowStage==="Completed").length;
+ document.getElementById("analyticsRows").innerHTML=a.length?a.map(r=>{
+   const lo=Number(r.loScore)||0; const priority=lo<50?"High":lo<70?"Medium":"Normal";
+   return `<tr><td>${esc(r.name)}</td><td>${lo.toFixed(1)}</td><td>${Number(r.target3||0).toFixed(2)}</td><td>${esc(r.workflowStage||"Draft")}</td><td>${priority}</td></tr>`
+ }).join(""):'<tr><td colspan="5">No records yet.</td></tr>';
+}
+function saveAnalyticsNote(){
+ localStorage.setItem("tpadSmartV7ManagementNote",JSON.stringify({priority:anPriority.value,action:anAction.value,date:new Date().toISOString()}));
+ alert("Management note saved on this device.");
+}
+function printAnalytics(){renderAnalytics();window.print();}
+
+renderAnalytics();
+
+const V8SCHOOL="tpadSmartV8School", V8USERS="tpadSmartV8Users", V8ASSIGN="tpadSmartV8Assignments";
+function jget(k,d){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d))}catch(e){return d}}
+function jset(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function openV8(id){const btn=[...document.querySelectorAll(".nav button")].find(b=>b.textContent.toLowerCase().includes(id==="home"?"home":id==="dashboard"?"dashboard":id));tab(id,btn||document.querySelector(".nav button"))}
+function setupV8Locations(){
+ const c=document.getElementById("v8County"),s=document.getElementById("v8Subcounty");
+ c.innerHTML='<option value="">Select County</option>'+countyNames.map(x=>`<option>${x}</option>`).join("");
+ c.onchange=()=>{let a=kenyaLocations[c.value]||[];s.innerHTML='<option value="">Select Sub-County</option>'+a.map(x=>`<option>${x}</option>`).join("")};
+}
+function saveSchool(){
+ const d={name:v8SchoolName.value,code:v8SchoolCode.value,type:v8SchoolType.value,county:v8County.value,subcounty:v8Subcounty.value,head:v8Head.value,headTsc:v8HeadTsc.value,email:v8Email.value,phone:v8Phone.value};
+ jset(V8SCHOOL,d);loginSchool.value=d.name||"";alert("School profile saved on this device.");renderV8Home();
+}
+function loadSchool(){
+ const d=jget(V8SCHOOL,{});Object.entries({v8SchoolName:"name",v8SchoolCode:"code",v8SchoolType:"type",v8County:"county",v8Subcounty:"subcounty",v8Head:"head",v8HeadTsc:"headTsc",v8Email:"email",v8Phone:"phone"}).forEach(([id,k])=>{let e=document.getElementById(id);if(e)e.value=d[k]||""});
+ if(d.county){v8County.dispatchEvent(new Event("change"));v8Subcounty.value=d.subcounty||""}
+}
+function addUser(){
+ if(!v8UserName.value)return alert("Enter a user name.");
+ const a=jget(V8USERS,[]);a.push({id:"U"+Date.now(),name:v8UserName.value,no:v8UserNo.value,role:v8UserRole.value});jset(V8USERS,a);
+ v8UserName.value="";v8UserNo.value="";renderUsers();renderAssignments();renderV8Home();
+}
+function renderUsers(){
+ const a=jget(V8USERS,[]);
+ v8Users.innerHTML=a.length?a.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.no)}</td><td>${esc(u.role)}</td><td><button class="danger" onclick="removeUser('${u.id}')">Delete</button></td></tr>`).join(""):'<tr><td colspan="4">No users added.</td></tr>';
+}
+function removeUser(id){jset(V8USERS,jget(V8USERS,[]).filter(x=>x.id!==id));renderUsers();renderAssignments();renderV8Home()}
+function renderAssignments(){
+ const users=jget(V8USERS,[]), teachers=users.filter(x=>x.role==="Teacher"), apps=users.filter(x=>x.role==="Appraiser / Deputy Head"||x.role==="Head of Institution");
+ assignTeacher.innerHTML=teachers.length?teachers.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join(""):'<option value="">Add Teacher User First</option>';
+ assignAppraiser.innerHTML=apps.length?apps.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join(""):'<option value="">Add Appraiser First</option>';
+ const a=jget(V8ASSIGN,[]);
+ assignmentRows.innerHTML=a.length?a.map(x=>`<tr><td>${esc(x.teacherName)}</td><td>${esc(x.appraiserName)}</td><td>${esc(x.period)}</td><td><button class="danger" onclick="removeAssignment('${x.id}')">Delete</button></td></tr>`).join(""):'<tr><td colspan="4">No assignments.</td></tr>';
+}
+function saveAssignment(){
+ const users=jget(V8USERS,[]),t=users.find(x=>x.id===assignTeacher.value),a=users.find(x=>x.id===assignAppraiser.value);if(!t||!a)return alert("Add teacher and appraiser users first.");
+ const rows=jget(V8ASSIGN,[]);rows.push({id:"A"+Date.now(),teacherId:t.id,teacherName:t.name,appraiserId:a.id,appraiserName:a.name,period:assignPeriod.value});jset(V8ASSIGN,rows);renderAssignments();alert("Assignment saved.");
+}
+function removeAssignment(id){jset(V8ASSIGN,jget(V8ASSIGN,[]).filter(x=>x.id!==id));renderAssignments()}
+function renderV8Home(){
+ const a=getRecords(), school=jget(V8SCHOOL,{});
+ homeTeachers.textContent=a.length;
+ homePending.textContent=a.filter(r=>(r.workflowStage||"Draft")!=="Completed").length;
+ homeCompleted.textContent=a.filter(r=>r.workflowStage==="Completed").length;
+ homeAvg.textContent=a.length?(a.reduce((s,r)=>s+(Number(r.loScore)||0),0)/a.length).toFixed(1):"0";
+ homeSchool.textContent=school.name||"No school selected";
+ try{const u=JSON.parse(localStorage.getItem(ROLEKEY)||"null");homeRole.textContent=u?u.role:"Guest"}catch(e){}
+}
+setupV8Locations();loadSchool();renderUsers();renderAssignments();renderV8Home();
+
+</script>
+<div id="mobileBar" class="no-print">
+<button onclick="openV8('home')">⌂<small>Home</small></button>
+<button onclick="openV8('dashboard')">▣<small>TPAD</small></button>
+<button onclick="openV8('profile')">＋<small>Appraisal</small></button>
+<button onclick="openV8('analytics')">▥<small>Reports</small></button>
+</div>
+<style>
+@media(max-width:700px){
+ body{padding-bottom:72px}
+ #mobileBar{position:fixed;left:0;right:0;bottom:0;height:62px;background:#fff;border-top:1px solid #d8e0e8;z-index:25;display:flex;justify-content:space-around;box-shadow:0 -3px 12px #0001}
+ #mobileBar button{border:0;background:transparent;font-size:21px;padding:5px 10px;color:#123b63}
+ #mobileBar small{display:block;font-size:9px;font-weight:700}
+ .nav{overflow-x:auto;white-space:nowrap}
+ .nav button{flex:0 0 auto}
+ .kpi{grid-template-columns:1fr 1fr!important}
+ .grid3,.grid{grid-template-columns:1fr!important}
+ table{font-size:11px}
+ .card{padding:12px!important}
+ input,select,textarea,button{font-size:16px}
+}
+@media(min-width:701px){#mobileBar{display:none}}
+</style>
+</body></html>

@@ -1,0 +1,29 @@
+{
+  "name": "Saveway ICT \u2014 TPAD Smart",
+  "short_name": "TPAD Smart",
+  "description": "Mobile TPAD support application hosted by Saveway ICT. Configurable for Ngendalel Schools and other schools.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#123b63",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "education",
+    "business"
+  ]
+}
